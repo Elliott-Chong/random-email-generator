@@ -124,11 +124,24 @@ function App() {
   }
 
   const openEmailInbox = (email: string) => {
-    window.open(`https://bugbug-inbox.com/${email}`, '_blank')
+    // Copy the full email address to clipboard
+    const fullEmail = `${email}@bugbug-inbox.com`
+    navigator.clipboard.writeText(fullEmail)
+      .then(() => {
+        toast.success('Email copied to clipboard!')
+      })
+      .catch((err) => {
+        console.error('Failed to copy:', err)
+        toast.error('Failed to copy to clipboard')
+      })
+
+    // Open in current tab instead of new tab
+    window.location.href = `https://bugbug-inbox.com/${email}`
   }
 
   const copyToClipboard = (email: string) => {
-    navigator.clipboard.writeText(email)
+    const fullEmail = `${email}@bugbug-inbox.com`
+    navigator.clipboard.writeText(fullEmail)
       .then(() => {
         toast.success('Email copied to clipboard!')
       })
