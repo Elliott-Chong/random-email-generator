@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { toast, Toaster } from 'sonner'
 import { EmailRecord } from './types'
 import { KeyboardShortcuts } from './components/KeyboardShortcuts'
 import { EmailList } from './components/EmailList'
 import { AboutApp } from './components/AboutApp'
-import { BugBugInfo } from './components/BugBugInfo'
 
 function App() {
   const [emails, setEmails] = useState<EmailRecord[]>([])
@@ -14,7 +13,6 @@ function App() {
   const [searchTerm, setSearchTerm] = useState<string>('')
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [isAboutExpanded, setIsAboutExpanded] = useState<boolean>(false)
-  const [isBugBugExpanded, setIsBugBugExpanded] = useState<boolean>(false)
   const [isShortcutsExpanded, setIsShortcutsExpanded] = useState<boolean>(false)
 
   // Load emails from localStorage on initial render
@@ -73,6 +71,7 @@ function App() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emails, searchTerm])
 
   const generateRandomEmail = async () => {
