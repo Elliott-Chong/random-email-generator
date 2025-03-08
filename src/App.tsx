@@ -239,6 +239,38 @@ function App() {
         <div className="bg-white rounded-xl shadow-md p-5 mb-6 border border-gray-100">
           <div className="flex items-center gap-2 mb-3 text-indigo-600">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z" />
+            </svg>
+            <h2 className="font-semibold">What is BugBug Inbox?</h2>
+          </div>
+
+          <div className="text-sm text-gray-600 space-y-2">
+            <p>
+              <span className="font-medium text-indigo-600">BugBug</span> is a modern end-to-end test automation tool that helps testers and developers create and run automated tests without coding.
+            </p>
+            <p>
+              <span className="font-medium text-indigo-600">BugBug Inbox</span> is a service that simplifies testing user registration and login flows by providing:
+            </p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Temporary email addresses that receive real emails</li>
+              <li>Automatic inbox refreshing to show the latest emails</li>
+              <li>Short-term email storage (emails are stored for 10 minutes)</li>
+              <li>The ability to open and verify registration/confirmation emails</li>
+            </ul>
+            <p>
+              This app uses the BugBug Inbox service to generate random email addresses that you can use for testing, signing up for services, or whenever you need a disposable email address.
+            </p>
+            <p>
+              <a href="https://bugbug.io" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800 font-medium">
+                Learn more about BugBug →
+              </a>
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-5 mb-6 border border-gray-100">
+          <div className="flex items-center gap-2 mb-3 text-indigo-600">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
             </svg>
             <h2 className="font-semibold">Keyboard Shortcuts</h2>
