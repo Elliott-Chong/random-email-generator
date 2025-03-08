@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { toast, Toaster } from 'sonner'
-import { formatDistanceToNow } from 'date-fns'
-
-type EmailRecord = {
-  id: string;
-  email: string;
-  createdAt: number;
-}
+import { EmailRecord } from './types'
+import { KeyboardShortcuts } from './components/KeyboardShortcuts'
+import { EmailList } from './components/EmailList'
+import { AboutApp } from './components/AboutApp'
+import { BugBugInfo } from './components/BugBugInfo'
 
 function App() {
   const [emails, setEmails] = useState<EmailRecord[]>([])
@@ -15,6 +13,9 @@ function App() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState<string>('')
   const searchInputRef = useRef<HTMLInputElement>(null)
+  const [isAboutExpanded, setIsAboutExpanded] = useState<boolean>(false)
+  const [isBugBugExpanded, setIsBugBugExpanded] = useState<boolean>(false)
+  const [isShortcutsExpanded, setIsShortcutsExpanded] = useState<boolean>(false)
 
   // Load emails from localStorage on initial render
   useEffect(() => {
@@ -167,274 +168,92 @@ function App() {
     }
   }
 
-  const formatDate = (timestamp: number) => {
-    return formatDistanceToNow(new Date(timestamp), { addSuffix: true })
-  }
-
-  // Filter emails based on search term
-  const filteredEmails = emails.filter(email =>
-    email.email.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
       <Toaster position="top-center" richColors />
-
       <div className="max-w-4xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Random Email Generator</h1>
-          <div className="flex gap-3">
-            <button
-              className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-medium"
-              onClick={generateRandomEmail}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-              )}
-              Generate New Email
-            </button>
-            {emails.length > 0 && (
+
+
+        {/* Main Email Generation UI */}
+        <div className="mb-8">
+          <div className="flex justify-between mb-8">
+            <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 mb-6">Random Email Generator</h1>
+            <div className="flex gap-3">
               <button
-                className="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 transition-all duration-200 flex items-center gap-2 font-medium"
-                onClick={clearAllEmails}
+                className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-medium"
+                onClick={generateRandomEmail}
+                disabled={isLoading}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-                Clear All
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-md p-5 mb-6 border border-gray-100">
-          <div className="flex items-center gap-2 mb-3 text-indigo-600">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z" />
-            </svg>
-            <h2 className="font-semibold">About This App</h2>
-          </div>
-
-          <div className="text-sm text-gray-600 space-y-2">
-            <p>
-              This Random Email Generator creates temporary email addresses that you can use for testing or when you need a disposable email.
-            </p>
-            <p>
-              Each generated email follows the format <span className="font-mono bg-gray-100 px-1 rounded">username@bugbug-inbox.com</span> and is automatically copied to your clipboard.
-            </p>
-            <p>
-              When you click on an email, you'll be redirected to its inbox where you can view any messages sent to that address.
-            </p>
-            <p className="text-indigo-600 font-medium pt-1">
-              Made with ❤️ by Elliott
-            </p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-md p-5 mb-6 border border-gray-100">
-          <div className="flex items-center gap-2 mb-3 text-indigo-600">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z" />
-            </svg>
-            <h2 className="font-semibold">What is BugBug Inbox?</h2>
-          </div>
-
-          <div className="text-sm text-gray-600 space-y-2">
-            <p>
-              <span className="font-medium text-indigo-600">BugBug</span> is a modern end-to-end test automation tool that helps testers and developers create and run automated tests without coding.
-            </p>
-            <p>
-              <span className="font-medium text-indigo-600">BugBug Inbox</span> is a service that simplifies testing user registration and login flows by providing:
-            </p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Temporary email addresses that receive real emails</li>
-              <li>Automatic inbox refreshing to show the latest emails</li>
-              <li>Short-term email storage (emails are stored for 10 minutes)</li>
-              <li>The ability to open and verify registration/confirmation emails</li>
-            </ul>
-            <p>
-              This app uses the BugBug Inbox service to generate random email addresses that you can use for testing, signing up for services, or whenever you need a disposable email address.
-            </p>
-            <p>
-              <a href="https://bugbug.io" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800 font-medium">
-                Learn more about BugBug →
-              </a>
-            </p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-md p-5 mb-6 border border-gray-100">
-          <div className="flex items-center gap-2 mb-3 text-indigo-600">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-            </svg>
-            <h2 className="font-semibold">Keyboard Shortcuts</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
-            <div className="flex items-center gap-2">
-              <kbd className="px-2 py-1 bg-gray-100 rounded-md shadow-sm border border-gray-200 text-xs">Ctrl+N</kbd>
-              <span>or</span>
-              <kbd className="px-2 py-1 bg-gray-100 rounded-md shadow-sm border border-gray-200 text-xs">⌘+N</kbd>
-              <span>Generate new email</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <kbd className="px-2 py-1 bg-gray-100 rounded-md shadow-sm border border-gray-200 text-xs">Ctrl+L</kbd>
-              <span>or</span>
-              <kbd className="px-2 py-1 bg-gray-100 rounded-md shadow-sm border border-gray-200 text-xs">⌘+L</kbd>
-              <span>Open latest email inbox</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <kbd className="px-2 py-1 bg-gray-100 rounded-md shadow-sm border border-gray-200 text-xs">Ctrl+F</kbd>
-              <span>or</span>
-              <kbd className="px-2 py-1 bg-gray-100 rounded-md shadow-sm border border-gray-200 text-xs">⌘+F</kbd>
-              <span>Focus search</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <kbd className="px-2 py-1 bg-gray-100 rounded-md shadow-sm border border-gray-200 text-xs">Esc</kbd>
-              <span>Clear search</span>
-            </div>
-          </div>
-
-          {statusMessage && (
-            <div className="mt-4 p-3 bg-blue-50 text-blue-700 rounded-lg text-sm border border-blue-100 animate-pulse">
-              {statusMessage}
-            </div>
-          )}
-        </div>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-lg mb-6 shadow-sm">
-            <div className="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-              <span>{error}</span>
-            </div>
-          </div>
-        )}
-
-        <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
-          <div className="px-5 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
-            <h2 className="font-semibold text-gray-800 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-              </svg>
-              Your Generated Emails
-            </h2>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Search emails..."
-                className="pl-10 pr-10 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-200"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              {searchTerm && (
-                <button
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setSearchTerm('')}
-                  title="Clear search"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400 hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                {isLoading ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                   </svg>
+                )}
+                Generate New Email
+              </button>
+              {emails.length > 0 && (
+                <button
+                  className="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 transition-all duration-200 flex items-center gap-2 font-medium"
+                  onClick={clearAllEmails}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  Clear All
                 </button>
               )}
             </div>
           </div>
 
-          {emails.length === 0 ? (
-            <div className="p-10 text-center text-gray-500">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-300 mb-3" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-              </svg>
-              <p className="mb-2">No emails generated yet</p>
-              <button
-                onClick={generateRandomEmail}
-                className="text-indigo-600 hover:text-indigo-800 font-medium"
-              >
-                Generate your first email
-              </button>
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-lg mb-6 shadow-sm">
+              <div className="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <span>{error}</span>
+              </div>
             </div>
-          ) : filteredEmails.length === 0 ? (
-            <div className="p-10 text-center text-gray-500">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-300 mb-3" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-              </svg>
-              <p>No emails match your search</p>
-            </div>
-          ) : (
-            <ul className="divide-y divide-gray-100">
-              {filteredEmails.map((emailRecord) => (
-                <li key={emailRecord.id} className="p-4 hover:bg-gray-50 transition-colors duration-150">
-                  <div className="flex flex-col md:flex-row justify-between md:items-center gap-3">
-                    <div>
-                      <p className="font-medium text-indigo-600 break-all mb-1">{emailRecord.email}</p>
-                      <p className="text-xs text-gray-500 flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                        </svg>
-                        {formatDate(emailRecord.createdAt)}
-                      </p>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => copyToClipboard(emailRecord.email)}
-                        className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors duration-150"
-                        title="Copy to clipboard"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                          <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => openEmailInbox(emailRecord.email)}
-                        className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-150"
-                        title="Open inbox"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => deleteEmail(emailRecord.id)}
-                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-150"
-                        title="Delete"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
           )}
+
+          {statusMessage && (
+            <div className="p-3 bg-blue-50 text-blue-700 rounded-lg text-sm border border-blue-100 animate-pulse mb-6">
+              {statusMessage}
+            </div>
+          )}
+
+          <EmailList
+            emails={emails}
+            searchTerm={searchTerm}
+            onCopyToClipboard={copyToClipboard}
+            onOpenInbox={openEmailInbox}
+            onDelete={deleteEmail}
+            onGenerateEmail={generateRandomEmail}
+            searchInputRef={searchInputRef}
+            onSearchChange={(e) => setSearchTerm(e.target.value)}
+            onClearSearch={() => setSearchTerm('')}
+          />
         </div>
 
-        <div className="mt-6 text-center text-xs text-gray-500">
+
+        <KeyboardShortcuts
+          isExpanded={isShortcutsExpanded}
+          onToggle={() => setIsShortcutsExpanded(!isShortcutsExpanded)}
+        />
+
+        <AboutApp
+          isExpanded={isAboutExpanded}
+          onToggle={() => setIsAboutExpanded(!isAboutExpanded)}
+        />
+
+        <div className="text-center text-xs text-gray-500 mt-6">
           <p>Random Email Generator • Powered by bugbug-inbox.com</p>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default App
