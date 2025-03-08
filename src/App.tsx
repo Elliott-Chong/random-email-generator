@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { toast, Toaster } from 'sonner'
+import { formatDistanceToNow } from 'date-fns'
 
 type EmailRecord = {
   id: string;
@@ -167,7 +168,7 @@ function App() {
   }
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString()
+    return formatDistanceToNow(new Date(timestamp), { addSuffix: true })
   }
 
   // Filter emails based on search term
