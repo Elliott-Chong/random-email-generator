@@ -97,7 +97,10 @@ export const EmailList: React.FC<Props> = ({
                     {filteredEmails.map((emailRecord) => (
                         <li key={emailRecord.id} className="p-4 hover:bg-gray-50 transition-colors duration-150">
                             <div className="flex flex-col md:flex-row justify-between md:items-center gap-3">
-                                <div>
+                                <div
+                                    className="flex-grow cursor-pointer"
+                                    onClick={() => onOpenInbox(emailRecord.email)}
+                                >
                                     <p className="font-medium text-indigo-600 break-all mb-1">{emailRecord.email}</p>
                                     <p className="text-xs text-gray-500 flex items-center gap-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
@@ -108,7 +111,10 @@ export const EmailList: React.FC<Props> = ({
                                 </div>
                                 <div className="flex space-x-2">
                                     <button
-                                        onClick={() => onCopyToClipboard(emailRecord.email)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onCopyToClipboard(emailRecord.email);
+                                        }}
                                         className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors duration-150"
                                         title="Copy to clipboard"
                                     >
@@ -118,17 +124,10 @@ export const EmailList: React.FC<Props> = ({
                                         </svg>
                                     </button>
                                     <button
-                                        onClick={() => onOpenInbox(emailRecord.email)}
-                                        className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-150"
-                                        title="Open inbox"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                                        </svg>
-                                    </button>
-                                    <button
-                                        onClick={() => onDelete(emailRecord.id)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onDelete(emailRecord.id);
+                                        }}
                                         className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-150"
                                         title="Delete"
                                     >
