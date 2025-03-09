@@ -1,19 +1,23 @@
-import { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
 import { toast, Toaster } from 'sonner'
 import { EmailRecord } from './types'
 import { KeyboardShortcuts } from './components/KeyboardShortcuts'
 import { EmailList } from './components/EmailList'
 import { AboutApp } from './components/AboutApp'
+import { BugBugInfo } from './components/BugBugInfo'
+import { AutoGenerateEmail } from './components/AutoGenerateEmail'
+import { copyEmailToClipboard, openInBugBugInbox, updateStoredEmails } from './utils'
 
-function App() {
+function AppContent() {
   const [emails, setEmails] = useState<EmailRecord[]>([])
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState<string>('')
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [isAboutExpanded, setIsAboutExpanded] = useState<boolean>(false)
+  const [isBugBugExpanded, setIsBugBugExpanded] = useState<boolean>(false)
   const [isShortcutsExpanded, setIsShortcutsExpanded] = useState<boolean>(false)
+  const navigate = useNavigate()
 
   // Load emails from localStorage on initial render
   useEffect(() => {
@@ -35,7 +39,7 @@ function App() {
       if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
         e.preventDefault()
         setStatusMessage('Generating new email...')
-        generateRandomEmail()
+        navigate('/new')
         setTimeout(() => setStatusMessage(null), 2000)
       }
 
@@ -44,7 +48,7 @@ function App() {
         e.preventDefault()
         if (emails.length > 0) {
           setStatusMessage('Opening latest email inbox...')
-          openEmailInbox(emails[0].email)
+          openInBugBugInbox(emails[0].email)
           setTimeout(() => setStatusMessage(null), 2000)
         } else {
           toast.error('No emails generated yet')
@@ -71,85 +75,15 @@ function App() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [emails, searchTerm])
+  }, [emails, searchTerm, navigate])
 
-  const generateRandomEmail = async () => {
-    try {
-      setIsLoading(true)
-      setError(null)
-
-      // Options for generating email usernames
-      const prefixes = [
-        'cool', 'super', 'mega', 'ultra', 'hyper', 'cyber', 'tech', 'digi',
-        'pixel', 'ninja', 'swift', 'buzz', 'star', 'pro', 'max', 'prime'
-      ]
-
-      const characters = 'abcdefghijklmnopqrstuvwxyz0123456789'
-
-      // Generate a random string of 5 characters
-      let randomString = ''
-      for (let i = 0; i < 5; i++) {
-        randomString += characters.charAt(Math.floor(Math.random() * characters.length))
-      }
-
-      // Pick a random prefix
-      const prefix = prefixes[Math.floor(Math.random() * prefixes.length)]
-
-      // Create the email username: prefix + random string
-      const generatedEmail = `${prefix}${randomString}`
-
-      // Create a new email record
-      const newEmail: EmailRecord = {
-        id: Date.now().toString(),
-        email: generatedEmail,
-        createdAt: Date.now()
-      }
-
-      // Update state and localStorage
-      const updatedEmails = [newEmail, ...emails]
-      setEmails(updatedEmails)
-      localStorage.setItem('randomEmails', JSON.stringify(updatedEmails))
-
-      toast.success('New random email generated!')
-
-      // Open the new email inbox
-      openEmailInbox(generatedEmail)
-    } catch (err) {
-      console.error('Error generating random email:', err)
-      setError('Failed to generate random email. Please try again.')
-      toast.error('Failed to generate random email. Please try again.')
-    } finally {
-      setIsLoading(false)
-    }
+  const generateRandomEmail = () => {
+    navigate('/new')
   }
 
-  const openEmailInbox = (email: string) => {
-    // Copy the full email address to clipboard
-    const fullEmail = `${email}@bugbug-inbox.com`
-    navigator.clipboard.writeText(fullEmail)
-      .then(() => {
-        toast.success('Email copied to clipboard!')
-      })
-      .catch((err) => {
-        console.error('Failed to copy:', err)
-        toast.error('Failed to copy to clipboard')
-      })
-
-    // Open in current tab instead of new tab
-    window.location.href = `https://bugbug-inbox.com/${email}`
-  }
-
-  const copyToClipboard = (email: string) => {
-    const fullEmail = `${email}@bugbug-inbox.com`
-    navigator.clipboard.writeText(fullEmail)
-      .then(() => {
-        toast.success('Email copied to clipboard!')
-      })
-      .catch((err) => {
-        console.error('Failed to copy:', err)
-        toast.error('Failed to copy to clipboard')
-      })
+  const openEmailInbox = async (email: string) => {
+    await copyEmailToClipboard(email)
+    openInBugBugInbox(email)
   }
 
   const deleteEmail = (id: string) => {
@@ -171,25 +105,24 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
       <Toaster position="top-center" richColors />
       <div className="max-w-4xl mx-auto">
+        <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 mb-6">Random Email Generator</h1>
 
+        <KeyboardShortcuts
+          isExpanded={isShortcutsExpanded}
+          onToggle={() => setIsShortcutsExpanded(!isShortcutsExpanded)}
+        />
 
         {/* Main Email Generation UI */}
         <div className="mb-8">
-          <div className="flex justify-between mb-8">
-            <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 mb-6">Random Email Generator</h1>
+          <div className="flex justify-end mb-8">
             <div className="flex gap-3">
               <button
                 className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-medium"
                 onClick={generateRandomEmail}
-                disabled={isLoading}
               >
-                {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                  </svg>
-                )}
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
                 Generate New Email
               </button>
               {emails.length > 0 && (
@@ -206,17 +139,6 @@ function App() {
             </div>
           </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-lg mb-6 shadow-sm">
-              <div className="flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-                <span>{error}</span>
-              </div>
-            </div>
-          )}
-
           {statusMessage && (
             <div className="p-3 bg-blue-50 text-blue-700 rounded-lg text-sm border border-blue-100 animate-pulse mb-6">
               {statusMessage}
@@ -226,7 +148,7 @@ function App() {
           <EmailList
             emails={emails}
             searchTerm={searchTerm}
-            onCopyToClipboard={copyToClipboard}
+            onCopyToClipboard={copyEmailToClipboard}
             onOpenInbox={openEmailInbox}
             onDelete={deleteEmail}
             onGenerateEmail={generateRandomEmail}
@@ -236,15 +158,14 @@ function App() {
           />
         </div>
 
-
-        <KeyboardShortcuts
-          isExpanded={isShortcutsExpanded}
-          onToggle={() => setIsShortcutsExpanded(!isShortcutsExpanded)}
-        />
-
         <AboutApp
           isExpanded={isAboutExpanded}
           onToggle={() => setIsAboutExpanded(!isAboutExpanded)}
+        />
+
+        <BugBugInfo
+          isExpanded={isBugBugExpanded}
+          onToggle={() => setIsBugBugExpanded(!isBugBugExpanded)}
         />
 
         <div className="text-center text-xs text-gray-500 mt-6">
@@ -252,7 +173,20 @@ function App() {
         </div>
       </div>
     </div>
-  );
+  )
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/new" element={<AutoGenerateEmail onEmailGenerated={(email) => {
+          updateStoredEmails(email)
+        }} />} />
+        <Route path="/" element={<AppContent />} />
+      </Routes>
+    </Router>
+  )
 }
 
 export default App
